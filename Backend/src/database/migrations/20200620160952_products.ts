@@ -5,7 +5,6 @@ export async function up(knex: Knex): Promise<any> {
     return knex.schema.createTable('products',(table)=>{
         table.increments('id').primary()
         table.string('description');
-
     });
 }
 

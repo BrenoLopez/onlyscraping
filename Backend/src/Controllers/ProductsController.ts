@@ -7,7 +7,9 @@ class ProductsController {
         const product = await connection('products').insert({description});
         return response.json({description,id:product[0]});
     }
-
+    async index(){
+        
+    }
 }
 
 export default new ProductsController();
