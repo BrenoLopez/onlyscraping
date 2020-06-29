@@ -1,64 +1,88 @@
-import React from 'react';
-import { Dimensions, FlatList, Linking, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useState } from 'react';
+import { Dimensions, FlatList, Image, Linking, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import api from './services/api';
 
 const DATA = [
     {
       id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
       name: 'Produto 1',
       price: '$45',
-      image: 'https://image.com.br',
-      url: 'https://image.com.br'
+      image: 'https://img.vigiadepreco.com.br/7c/259/de11/de50d/7c259de11de50d12c8bc6f262065f088c75d44377bfdccacc67f0e167fb0c34c.jpg',
+      url: 'https://image.com.br',
+      store: 'Amazon'
+
     },
     {
       id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
       name: 'Produto 2',
       price: '$45',
-      image: 'https://image.com.br',
-      url: 'https://image.com.br'
+      image: 'https://img.vigiadepreco.com.br/7c/259/de11/de50d/7c259de11de50d12c8bc6f262065f088c75d44377bfdccacc67f0e167fb0c34c.jpg',
+      url: 'https://image.com.br',
+      store: 'Amazon'
 
     },
     {
       id: '58694a0f-3da1-471f-bd96-145571e29d72',
       name: 'Produto 3',
       price: '$45',
-      image: 'https://image.com.br',
-      url: 'https://image.com.br'
+      image: 'https://img.vigiadepreco.com.br/11/480/66c3/ddd8f/1148066c3ddd8f461cb9cb4bbda83cba3f50f832cca9938bcac7b2f487aec886.jpg',
+      url: 'https://image.com.br',
+      store: 'Amazon'
     }  
   ];
 
-  interface Iitem {name: string,price: string,image:string, url: string}
-  function Item({ name,price,image,url } : Iitem) {
+  interface Iitem {name: string,price: string,image:string, url: string,store: string}
+  function Item({ name,price,image,url,store } : Iitem) {
     return (
         <View>
           <TouchableOpacity onPress={()=>Linking.openURL(url)}>
-        <View style={styles.productRow}>
+            <View style={styles.productContainer}>
+          <Text style={styles.productStore} >{((store).length > 15) ? 
+    (`${((store).substring(0,15-3))}...`) : 
+    store}</Text>
+        <View style={styles.productRow}>     
           <Text style={styles.productName} >{((name).length > 15) ? 
     (`${((name).substring(0,15-3))}...`) : 
     name}</Text>
              <Text style={styles.productPrice}>{price}</Text>
-             <Text style={styles.productImage}>{image}</Text>        
+             <Image
+        style={styles.productImage}
+        source={{
+          uri: `${image}`,
+        }}
+      />     
+        </View>
         </View>
         </TouchableOpacity>
         </View>
   
     );
   }
+  
 const App: React.FC = () => {
+  const [product,setProduct]= useState<string>('');
+  const handleChange = (text:string) => {
+    setProduct(text);
+  }
+  const handleSubmit = async() =>{
+    const response = await api.post('/products',{description:product});
+  }
   return (
   <View style={styles.container} >      
       <View >
         <Text style={styles.logo}>OnlyScraping</Text>
       </View>
       <View>
-      <TextInput style={styles.input} onChangeText={(text)=>console.log(text)} placeholder='Adicionar novo produto a busca' />
-     <TouchableOpacity style={styles.button}>
+      <TextInput style={styles.input} onChangeText={handleChange} placeholder='Adicionar novo produto a busca' />
+     <TouchableOpacity style={styles.button} onPress={handleSubmit}>
          <Text style={styles.buttonText}>Adicionar</Text>
      </TouchableOpacity>
       </View>
       <View style={styles.containerList}>
       <FlatList 
+         showsVerticalScrollIndicator={false}
          data={DATA}
-         renderItem={({ item }) => <Item name={item.name} price={item.price} image={item.image} url={item.url}/>}
+         renderItem={({ item }) => <Item name={item.name} price={item.price} image={item.image} url={item.url} store={item.store}/>}
          keyExtractor={item => item.id}/>
       </View>
     
@@ -115,19 +139,21 @@ const styles = StyleSheet.create({
           padding: 0,
           width: Dimensions.get('window').width - 60,         
       },
-      productRow: {
-          display: "flex",
-          flexDirection: "row",
-          borderWidth: 1,
-          borderColor: 'grey',
-          marginTop: 15,
-          padding: 10,
-          borderRadius: 5,
-          width: Dimensions.get('window').width - 60,
+      productContainer: {
+        display: "flex",
+        borderWidth: 1,
+        borderColor: 'grey',
+        marginTop: 15,
+        padding: 10,
+        borderRadius: 15,
+        width: Dimensions.get('window').width - 60,
+        backgroundColor: 'white',
+        height: 150,
+      },
+      productRow: {         
+          flexDirection: "row",       
           justifyContent: 'space-between',
-          alignItems: 'center',
-          backgroundColor: 'white',
-          height: 100
+          alignItems: 'center',       
       },
       productName: {
           fontSize: 16,
@@ -139,7 +165,13 @@ const styles = StyleSheet.create({
           marginRight: 30
       },
       productImage:{
-          
-      }
-  
+          width:'30%',
+          height: 100,
+          resizeMode: 'center',
+      },
+      productStore: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginLeft: '40%',
+    },
 })
