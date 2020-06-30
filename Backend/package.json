@@ -9,7 +9,7 @@
     "express": "^4.17.1",
     "knex": "^0.21.1",
     "pg": "^8.2.1",
-    "puppeteer": "^4.0.0"
+    "puppeteer": "^4.0.1"
   },
   "scripts": {
     "dev": "tsnd -r tsconfig-paths/register --respawn --transpileOnly --clear --ignore-watch node_modules src/server"
