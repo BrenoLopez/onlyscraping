@@ -1,49 +1,28 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Dimensions, FlatList, Image, Linking, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import api from './services/api';
 
-const DATA = [
-    {
-      id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-      name: 'Produto 1',
-      price: '$45',
-      image: 'https://img.vigiadepreco.com.br/7c/259/de11/de50d/7c259de11de50d12c8bc6f262065f088c75d44377bfdccacc67f0e167fb0c34c.jpg',
-      url: 'https://image.com.br',
-      store: 'Amazon'
 
-    },
-    {
-      id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-      name: 'Produto 2',
-      price: '$45',
-      image: 'https://img.vigiadepreco.com.br/7c/259/de11/de50d/7c259de11de50d12c8bc6f262065f088c75d44377bfdccacc67f0e167fb0c34c.jpg',
-      url: 'https://image.com.br',
-      store: 'Amazon'
 
-    },
-    {
-      id: '58694a0f-3da1-471f-bd96-145571e29d72',
-      name: 'Produto 3',
-      price: '$45',
-      image: 'https://img.vigiadepreco.com.br/11/480/66c3/ddd8f/1148066c3ddd8f461cb9cb4bbda83cba3f50f832cca9938bcac7b2f487aec886.jpg',
-      url: 'https://image.com.br',
-      store: 'Amazon'
-    }  
-  ];
+  interface Iitem {description: string,price: number,image:string, url: string,store: string}
+  interface IProduct {description: string,price: number,image:string, url: string,store: string,id: string}
 
-  interface Iitem {name: string,price: string,image:string, url: string,store: string}
-  function Item({ name,price,image,url,store } : Iitem) {
+  function Item({ description,price,image,url,store } : Iitem) {
     return (
         <View>
           <TouchableOpacity onPress={()=>Linking.openURL(url)}>
             <View style={styles.productContainer}>
-          <Text style={styles.productStore} >{((store).length > 15) ? 
+          <Text style={styles.productStore} >
+            {((store).length > 15) ? 
     (`${((store).substring(0,15-3))}...`) : 
-    store}</Text>
+    store}
+    </Text>
         <View style={styles.productRow}>     
-          <Text style={styles.productName} >{((name).length > 15) ? 
-    (`${((name).substring(0,15-3))}...`) : 
-    name}</Text>
+          <Text style={styles.productdescription} >
+            {((description).length > 15) ? 
+    (`${((description).substring(0,15-3))}...`) : 
+    description}
+    </Text>
              <Text style={styles.productPrice}>{price}</Text>
              <Image
         style={styles.productImage}
@@ -61,12 +40,20 @@ const DATA = [
   
 const App: React.FC = () => {
   const [product,setProduct]= useState<string>('');
+  const [products, setProducts] = useState<IProduct[]>([]);
   const handleChange = (text:string) => {
     setProduct(text);
   }
   const handleSubmit = async() =>{
     const response = await api.post('/products',{description:product});
   }
+  useEffect(()=>{
+    async function loadProducts(){
+      const response = await api.get('/products');
+      setProducts(response.data);
+    }
+    loadProducts();
+  },[]);
   return (
   <View style={styles.container} >      
       <View >
@@ -81,9 +68,9 @@ const App: React.FC = () => {
       <View style={styles.containerList}>
       <FlatList 
          showsVerticalScrollIndicator={false}
-         data={DATA}
-         renderItem={({ item }) => <Item name={item.name} price={item.price} image={item.image} url={item.url} store={item.store}/>}
-         keyExtractor={item => item.id}/>
+         data={products}
+         renderItem={({ item }) => <Item description={item.description} price={item.price} image={item.image} url={item.url} store={item.store}/>}
+         keyExtractor={item => item.id.toString()}/>
       </View>
     
       
@@ -155,7 +142,7 @@ const styles = StyleSheet.create({
           justifyContent: 'space-between',
           alignItems: 'center',       
       },
-      productName: {
+      productdescription: {
           fontSize: 16,
           fontWeight: 'bold',
           marginRight: 10
