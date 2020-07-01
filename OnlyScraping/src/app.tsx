@@ -45,7 +45,13 @@ const App: React.FC = () => {
     setProduct(text);
   }
   const handleSubmit = async() =>{
-    const response = await api.post('/products',{description:product});
+    try {
+     await api.post('/products',{description:product});
+      setProduct('');
+    } catch (error) {
+      
+    }
+
   }
   useEffect(()=>{
     async function loadProducts(){
@@ -60,7 +66,7 @@ const App: React.FC = () => {
         <Text style={styles.logo}>OnlyScraping</Text>
       </View>
       <View>
-      <TextInput style={styles.input} onChangeText={handleChange} placeholder='Adicionar novo produto a busca' />
+      <TextInput style={styles.input} onChangeText={handleChange} value={product} placeholder='Adicionar novo produto a busca' />
      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
          <Text style={styles.buttonText}>Adicionar</Text>
      </TouchableOpacity>
